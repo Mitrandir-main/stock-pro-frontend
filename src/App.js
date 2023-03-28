@@ -1,22 +1,46 @@
-import logo from './logo.svg';
+import { useEffect, useState } from 'react';
 import './App.css';
+import RecipeReviewCard from './components/home/Card';
+import HomePage from './components/home/HomePage';
+import ResponsiveAppBar from './components/navigation/ResponsiveAppBar';
 
 function App() {
+  const [arrayData, setArrayData] = useState([]);
+
+  useEffect(() => {
+    //get data
+    setArrayData([
+    "Page 1", 
+    "Page ",
+    "Page 4",
+    "Page 4",
+    "Page 4",
+    "Page 44",
+    "Page 44",
+    "Page 44",
+    "Page 44",
+    "Page 44",
+    "Page 14",
+    "Page 44",
+    "Page 44",
+    "Page 44",
+
+   ])
+  }, [])
+
   return (
     <div className="App">
+      <ResponsiveAppBar/>
       <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
+        <div>
+          {arrayData.map((x)=> {
+            return (
+             <div>
+                <HomePage name = {x}/>
+                <RecipeReviewCard name = {x}/>
+             </div>)
+          })}
+        </div>
       </header>
     </div>
   );
