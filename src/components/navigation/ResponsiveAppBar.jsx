@@ -125,7 +125,7 @@ function ResponsiveAppBar() {
                             textDecoration: "none",
                         }}
                     >
-                        LOGO
+                        Stock Pro
                     </Typography>
                     <Box
                         sx={{
