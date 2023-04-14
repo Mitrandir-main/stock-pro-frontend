@@ -99,7 +99,7 @@ export default class ChartLine extends PureComponent {
                 height={400}
                 data={data}
                 margin={{
-                    top: 20,
+                    top: 50,
                     right: 30,
                     left: 20,
                     bottom: 5,
