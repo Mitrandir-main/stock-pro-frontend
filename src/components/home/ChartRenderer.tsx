@@ -1,21 +1,21 @@
 import React, { useEffect, useState } from "react";
+import Stock from "./Stock";
 
 type Props = {};
+// interface Asset {
+//     name: string;
+//     price: number;
+//     change1s: number;
+//     change1m: number;
+//     change30m: number;
+//     change1h: number;
+//     change12h: number;
+//     change1d: number;
+// }
 
-interface Asset {
-    name: string;
-    price: number;
-    change1s: number;
-    change1m: number;
-    change30m: number;
-    change1h: number;
-    change12h: number;
-    change1d: number;
-}
-
-interface AssetData {
-    assets: Asset[];
-}
+// interface AssetData {
+//     assets: Asset[];
+// }
 
 export default function ChartRenderer(props: Props) {
     const [assets, setAssets] = useState<AssetData | undefined>(undefined);
@@ -30,7 +30,7 @@ export default function ChartRenderer(props: Props) {
         });
 
         const combinedObject = {
-            assets: combinedAssets,
+            assets: combinedAssets.slice(0, 20),
         };
 
         const combinedJsonString: AssetData = combinedObject;
@@ -39,8 +39,6 @@ export default function ChartRenderer(props: Props) {
     }
 
     useEffect(() => {
-        const jsonString = '{"assets":[...]}';
-
         fetch("/dumy.json")
             .then((response) => response.text())
             .then((data) => {
@@ -55,7 +53,7 @@ export default function ChartRenderer(props: Props) {
             {assets !== undefined ? (
                 <div>
                     {assets.assets.map((x) => {
-                        return <div>{x.name}</div>;
+                        return <Stock asset={x} />;
                     })}
                 </div>
             ) : (
