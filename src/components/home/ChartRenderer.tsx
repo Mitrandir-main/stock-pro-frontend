@@ -48,7 +48,7 @@ export default function ChartRenderer() {
     return (
         <div style={{ marginTop: "50px", width: "90%", margin: "0 auto" }}>
             {assets !== undefined ? (
-                <Grid container spacing={6} justifyContent="center">
+                <Grid container spacing={4} justifyContent="center">
                     {assets.assets.map((x) => {
                         return (
                             <Grid item xs={12} md={4}>
