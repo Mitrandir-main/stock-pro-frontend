@@ -1,23 +1,8 @@
 import React, { useEffect, useState } from "react";
 import Stock from "./Stock";
+import { CircularProgress, Grid } from "@mui/material";
 
-type Props = {};
-// interface Asset {
-//     name: string;
-//     price: number;
-//     change1s: number;
-//     change1m: number;
-//     change30m: number;
-//     change1h: number;
-//     change12h: number;
-//     change1d: number;
-// }
-
-// interface AssetData {
-//     assets: Asset[];
-// }
-
-export default function ChartRenderer(props: Props) {
+export default function ChartRenderer() {
     const [assets, setAssets] = useState<AssetData | undefined>(undefined);
 
     function processJsons(data: any) {
@@ -29,8 +14,20 @@ export default function ChartRenderer(props: Props) {
             combinedAssets.push(...object.assets);
         });
 
+        const distinctAssets: any = [];
+
+        combinedAssets.forEach((asset: Asset) => {
+            if (
+                !distinctAssets.some(
+                    (existingAsset: Asset) => existingAsset.name === asset.name
+                )
+            ) {
+                distinctAssets.push(asset);
+            }
+        });
+
         const combinedObject = {
-            assets: combinedAssets.slice(0, 20),
+            assets: distinctAssets,
         };
 
         const combinedJsonString: AssetData = combinedObject;
@@ -49,15 +46,21 @@ export default function ChartRenderer(props: Props) {
     }, []);
 
     return (
-        <div>
+        <div style={{ marginTop: "50px", width: "90%", margin: "0 auto" }}>
             {assets !== undefined ? (
-                <div>
+                <Grid container spacing={6} justifyContent="center">
                     {assets.assets.map((x) => {
-                        return <Stock asset={x} />;
+                        return (
+                            <Grid item xs={12} md={4}>
+                                <Stock asset={x} />
+                            </Grid>
+                        );
                     })}
-                </div>
+                </Grid>
             ) : (
-                <div></div>
+                <div>
+                    <CircularProgress color="success" />
+                </div>
             )}
         </div>
     );
