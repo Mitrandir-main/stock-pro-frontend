@@ -46,7 +46,13 @@ const Stock = (props: Props) => {
                 <Grid xs={6} md={6}>
                     <div>
                         <div style={{ marginTop: "20px" }}>
-                            <MdCurrencyBitcoin size={60} color="green" />
+                            {props.asset.name
+                                .toLocaleLowerCase()
+                                .includes("btc") ? (
+                                <MdCurrencyBitcoin size={60} color="green" />
+                            ) : (
+                                <div style={{ height: "65px" }}></div>
+                            )}
                         </div>
                         <h3>{removeUSDT(props.asset.name)}</h3>
 
