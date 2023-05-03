@@ -2,6 +2,7 @@ import { Grid, Paper } from "@mui/material";
 import React from "react";
 import { FaBeer } from "react-icons/fa";
 import { MdCurrencyBitcoin } from "react-icons/md";
+import "../../App.css";
 
 type Props = {
     asset: Asset;
@@ -20,6 +21,22 @@ const Stock = (props: Props) => {
         return str.replace(/USDT/g, "");
     }
 
+    const isZero = (value: number) => {
+        if (value === 0) {
+            return true;
+        } else {
+            return false;
+        }
+    };
+
+    const isPositive = (value: number) => {
+        if (value > 0) {
+            return true;
+        } else {
+            return false;
+        }
+    };
+
     return (
         <Paper
             elevation={3}
@@ -29,7 +46,13 @@ const Stock = (props: Props) => {
                 <Grid xs={6} md={6}>
                     <div>
                         <div style={{ marginTop: "20px" }}>
-                            <MdCurrencyBitcoin size={60} color="green" />
+                            {props.asset.name
+                                .toLocaleLowerCase()
+                                .includes("btc") ? (
+                                <MdCurrencyBitcoin size={60} color="green" />
+                            ) : (
+                                <div style={{ height: "65px" }}></div>
+                            )}
                         </div>
                         <h3>{removeUSDT(props.asset.name)}</h3>
 
@@ -41,28 +64,88 @@ const Stock = (props: Props) => {
                     <div>
                         <h5>Time Changes:</h5>
                         <p>
-                            1 second:{" "}
-                            {" " + formatDollarAmount(props.asset.change1s)}
+                            1s: {"  "}{" "}
+                            <span
+                                className={
+                                    isZero(props.asset.change1s)
+                                        ? "stock-text-normal"
+                                        : isPositive(props.asset.change1s)
+                                        ? "stock-text-green"
+                                        : "stock-text-red"
+                                }
+                            >
+                                {props.asset.change1s + "%"}
+                            </span>{" "}
                         </p>
                         <p>
-                            1 minute:{" "}
-                            {" " + formatDollarAmount(props.asset.change1m)}
+                            1m: {"  "}{" "}
+                            <span
+                                className={
+                                    isZero(props.asset.change1m)
+                                        ? "stock-text-normal"
+                                        : isPositive(props.asset.change1m)
+                                        ? "stock-text-green"
+                                        : "stock-text-red"
+                                }
+                            >
+                                {props.asset.change1m + "%"}
+                            </span>{" "}
                         </p>
                         <p>
-                            30 minutes:{" "}
-                            {" " + formatDollarAmount(props.asset.change30m)}
+                            30m: {"  "}
+                            <span
+                                className={
+                                    isZero(props.asset.change30m)
+                                        ? "stock-text-normal"
+                                        : isPositive(props.asset.change30m)
+                                        ? "stock-text-green"
+                                        : "stock-text-red"
+                                }
+                            >
+                                {props.asset.change30m + "%"}
+                            </span>{" "}
                         </p>
                         <p>
-                            1 hour:{" "}
-                            {" " + formatDollarAmount(props.asset.change1h)}
+                            1h: {"  "}{" "}
+                            <span
+                                className={
+                                    isZero(props.asset.change1h)
+                                        ? "stock-text-normal"
+                                        : isPositive(props.asset.change1h)
+                                        ? "stock-text-green"
+                                        : "stock-text-red"
+                                }
+                            >
+                                {props.asset.change1h + "%"}
+                            </span>{" "}
                         </p>
                         <p>
-                            12 hours:{" "}
-                            {" " + formatDollarAmount(props.asset.change12h)}
+                            12h: {"  "}{" "}
+                            <span
+                                className={
+                                    isZero(props.asset.change12h)
+                                        ? "stock-text-normal"
+                                        : isPositive(props.asset.change12h)
+                                        ? "stock-text-green"
+                                        : "stock-text-red"
+                                }
+                            >
+                                {props.asset.change12h + "%"}
+                            </span>{" "}
                         </p>
                         <p>
-                            1 day:{" "}
-                            {" " + formatDollarAmount(props.asset.change1d)}
+                            1d: {"  "}{" "}
+                            <span
+                                className={
+                                    isZero(props.asset.change1d)
+                                        ? "stock-text-normal"
+                                        : isPositive(props.asset.change1d)
+                                        ? "stock-text-green"
+                                        : "stock-text-red"
+                                }
+                            >
+                                {props.asset.change1d + "%"}
+                            </span>{" "}
                         </p>
                     </div>
                 </Grid>

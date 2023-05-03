@@ -1,5 +1,6 @@
 .App {
     background-color: #282c34;
+    min-height: 100vh;
 }
 
 .App-logo {
@@ -35,4 +36,20 @@
     to {
         transform: rotate(360deg);
     }
+}
+
+.stock-text-green {
+    color: green;
+    font-weight: 750;
+}
+.stock-text-red {
+    color: red;
+    font-weight: 750;
+}
+.stock-text-normal {
+    font-weight: 750;
+}
+
+p {
+    font-weight: 500;
 }

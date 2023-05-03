@@ -1,9 +1,27 @@
 import React, { useEffect, useState } from "react";
 import Stock from "./Stock";
-import { CircularProgress, Grid } from "@mui/material";
+import { CircularProgress, Grid, Paper } from "@mui/material";
+import TextField from "@mui/material/TextField";
+import IconButton from "@mui/material/IconButton";
+import InputLabel from "@mui/material/InputLabel";
+import InputAdornment from "@mui/material/InputAdornment";
+import FormControl from "@mui/material/FormControl";
+import SearchIcon from "@mui/icons-material/Search";
+import MenuItem from "@mui/material/MenuItem";
+import Select, { SelectChangeEvent } from "@mui/material/Select";
+import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
+import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 
 export default function ChartRenderer() {
     const [assets, setAssets] = useState<AssetData | undefined>(undefined);
+    const [searchValue, setSearchValue] = useState<string>("");
+    const [sort, setSort] = React.useState("");
+    const [filter, setFilter] = React.useState("");
+    const [filterValueMin, setFilterValueMin] = React.useState(0);
+    const [filterValueMax, setFilterValueMax] = React.useState(0);
+    const [filteredAssets, setFilteredAssets] = useState<Asset[]>([]);
+
+    const [ascending, setAscending] = React.useState(true);
 
     function processJsons(data: any) {
         const jsonStrings = data.trim().split("\n");
@@ -35,6 +53,89 @@ export default function ChartRenderer() {
         return combinedJsonString;
     }
 
+    const stockParameters = [
+        "change1s",
+        "change1m",
+        "change30m",
+        "change1h",
+        "change12h",
+        "change1d",
+    ];
+
+    const handleFilterAndSort = () => {
+        const applySearch = (assets: Asset[]) => {
+            if (!searchValue) return assets;
+
+            return assets.filter((asset) =>
+                asset.name.toLowerCase().includes(searchValue.toLowerCase())
+            );
+        };
+
+        const applyFilter = (assetsToFilter: Asset[]) => {
+            if (filter === "") {
+                return assetsToFilter;
+            } else {
+                const filtered = assetsToFilter.filter((asset) => {
+                    const assetValue = asset[filter as keyof Asset];
+                    if (typeof assetValue === "number") {
+                        return (
+                            assetValue >= filterValueMin &&
+                            assetValue <= filterValueMax
+                        );
+                    }
+                    return false;
+                });
+                return filtered;
+            }
+        };
+
+        const applySort = (assetsToSort: Asset[]) => {
+            if (sort === "") {
+                return assetsToSort;
+            } else {
+                const sorted = [...assetsToSort].sort((a, b) => {
+                    const aValue = a[sort as keyof Asset];
+                    const bValue = b[sort as keyof Asset];
+                    if (
+                        typeof aValue === "number" &&
+                        typeof bValue === "number"
+                    ) {
+                        return ascending ? aValue - bValue : bValue - aValue;
+                    }
+                    return 0;
+                });
+                return sorted;
+            }
+        };
+
+        if (assets) {
+            let filteredAndSortedAssets = assets.assets;
+            filteredAndSortedAssets = applySearch(filteredAndSortedAssets);
+            filteredAndSortedAssets = applyFilter(filteredAndSortedAssets);
+            filteredAndSortedAssets = applySort(filteredAndSortedAssets);
+            setFilteredAssets(filteredAndSortedAssets);
+        }
+    };
+
+    useEffect(() => {
+        handleFilterAndSort();
+    }, [
+        assets,
+        searchValue,
+        filter,
+        sort,
+        ascending,
+        filterValueMin,
+        filterValueMax,
+    ]);
+
+    const handleSort = (event: SelectChangeEvent) => {
+        setSort(event.target.value);
+    };
+    const handleFilter = (event: SelectChangeEvent) => {
+        setFilter(event.target.value);
+    };
+
     useEffect(() => {
         fetch("/dumy.json")
             .then((response) => response.text())
@@ -49,13 +150,164 @@ export default function ChartRenderer() {
         <div style={{ marginTop: "50px", width: "90%", margin: "0 auto" }}>
             {assets !== undefined ? (
                 <Grid container spacing={4} justifyContent="center">
-                    {assets.assets.map((x) => {
-                        return (
-                            <Grid item xs={12} md={4}>
-                                <Stock asset={x} />
+                    <Grid item xs={12} md={3}>
+                        <Paper
+                            elevation={3}
+                            style={{
+                                margin: "20px",
+                                padding: "10px",
+                            }}
+                        >
+                            <TextField
+                                fullWidth
+                                variant="outlined"
+                                label="Search"
+                                value={searchValue}
+                                onChange={(e) => setSearchValue(e.target.value)}
+                                InputProps={{
+                                    endAdornment: (
+                                        <InputAdornment position="end">
+                                            <IconButton
+                                                aria-label="search"
+                                                onClick={() => {
+                                                    handleFilterAndSort();
+                                                }}
+                                            >
+                                                <SearchIcon />
+                                            </IconButton>
+                                        </InputAdornment>
+                                    ),
+                                }}
+                            />
+                        </Paper>
+                    </Grid>
+                    <Grid item xs={12} md={6}>
+                        <Paper
+                            elevation={3}
+                            style={{
+                                margin: "20px",
+                                padding: "10px",
+                            }}
+                        >
+                            <Grid container spacing={4} justifyContent="center">
+                                <Grid item xs={4}>
+                                    <FormControl fullWidth>
+                                        <InputLabel id="demo-simple-select-label">
+                                            Filter
+                                        </InputLabel>
+                                        <Select
+                                            labelId="demo-simple-select-label"
+                                            id="demo-simple-select"
+                                            value={filter}
+                                            label="Filter"
+                                            onChange={handleFilter}
+                                        >
+                                            {stockParameters.map((x) => {
+                                                return (
+                                                    <MenuItem value={x}>
+                                                        {x}
+                                                    </MenuItem>
+                                                );
+                                            })}
+                                        </Select>
+                                    </FormControl>
+                                </Grid>
+                                <Grid item xs={3}>
+                                    <TextField
+                                        id="outlined-basic"
+                                        label="Min"
+                                        variant="outlined"
+                                        type="number"
+                                        value={filterValueMin}
+                                        onChange={(e) => {
+                                            setFilterValueMin(
+                                                parseInt(e.target.value)
+                                            );
+                                        }}
+                                    />
+                                </Grid>
+                                <Grid item xs={3}>
+                                    <TextField
+                                        id="outlined-basic"
+                                        label="max"
+                                        variant="outlined"
+                                        type="number"
+                                        value={filterValueMax}
+                                        onChange={(e) => {
+                                            setFilterValueMax(
+                                                parseInt(e.target.value)
+                                            );
+                                        }}
+                                    />
+                                </Grid>
+
+                                <Grid item xs={1}>
+                                    <IconButton
+                                        onClick={() => handleFilterAndSort()}
+                                    >
+                                        <SearchIcon />
+                                    </IconButton>
+                                </Grid>
                             </Grid>
-                        );
-                    })}
+                        </Paper>
+                    </Grid>
+                    <Grid item xs={12} md={3}>
+                        <Paper
+                            elevation={3}
+                            style={{
+                                margin: "20px",
+                                padding: "10px",
+                            }}
+                        >
+                            <Grid container spacing={4} justifyContent="center">
+                                <Grid item xs={9}>
+                                    <FormControl fullWidth>
+                                        <InputLabel id="demo-simple-select-label">
+                                            Sort By
+                                        </InputLabel>
+                                        <Select
+                                            labelId="demo-simple-select-label"
+                                            id="demo-simple-select"
+                                            value={sort}
+                                            label="Sort By:"
+                                            onChange={handleSort}
+                                        >
+                                            {stockParameters.map((x) => {
+                                                return (
+                                                    <MenuItem value={x}>
+                                                        {x}
+                                                    </MenuItem>
+                                                );
+                                            })}
+                                        </Select>
+                                    </FormControl>
+                                </Grid>
+                                <Grid item xs={3}>
+                                    <IconButton
+                                        onClick={() => setAscending(!ascending)}
+                                    >
+                                        {ascending ? (
+                                            <ArrowDownwardIcon />
+                                        ) : (
+                                            <ArrowUpwardIcon />
+                                        )}
+                                    </IconButton>
+                                </Grid>
+                            </Grid>
+                        </Paper>
+                    </Grid>
+
+                    {filteredAssets.length === 0 ? (
+                        <div>No stocks found...</div>
+                    ) : (
+                        filteredAssets.map((x) => {
+                            return (
+                                <Grid item xs={12} md={4}>
+                                    <Stock asset={x} />
+                                </Grid>
+                            );
+                        })
+                    )}
                 </Grid>
             ) : (
                 <div>
