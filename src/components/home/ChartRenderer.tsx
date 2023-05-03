@@ -2,13 +2,10 @@ import React, { useEffect, useState } from "react";
 import Stock from "./Stock";
 import { CircularProgress, Grid, Paper } from "@mui/material";
 import TextField from "@mui/material/TextField";
-import Autocomplete from "@mui/material/Autocomplete";
 import IconButton from "@mui/material/IconButton";
-import OutlinedInput from "@mui/material/OutlinedInput";
 import InputLabel from "@mui/material/InputLabel";
 import InputAdornment from "@mui/material/InputAdornment";
 import FormControl from "@mui/material/FormControl";
-import VisibilityOff from "@mui/icons-material/VisibilityOff";
 import SearchIcon from "@mui/icons-material/Search";
 import MenuItem from "@mui/material/MenuItem";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
@@ -22,8 +19,9 @@ export default function ChartRenderer() {
     const [filter, setFilter] = React.useState("");
     const [filterValueMin, setFilterValueMin] = React.useState(0);
     const [filterValueMax, setFilterValueMax] = React.useState(0);
+    const [filteredAssets, setFilteredAssets] = useState<Asset[]>([]);
 
-    const [up, setUp] = React.useState(true);
+    const [ascending, setAscending] = React.useState(true);
 
     function processJsons(data: any) {
         const jsonStrings = data.trim().split("\n");
@@ -63,7 +61,74 @@ export default function ChartRenderer() {
         "change12h",
         "change1d",
     ];
-    const handleSearch = () => {};
+
+    const handleFilterAndSort = () => {
+        const applySearch = (assets: Asset[]) => {
+            if (!searchValue) return assets;
+
+            return assets.filter((asset) =>
+                asset.name.toLowerCase().includes(searchValue.toLowerCase())
+            );
+        };
+
+        const applyFilter = (assetsToFilter: Asset[]) => {
+            if (filter === "") {
+                return assetsToFilter;
+            } else {
+                const filtered = assetsToFilter.filter((asset) => {
+                    const assetValue = asset[filter as keyof Asset];
+                    if (typeof assetValue === "number") {
+                        return (
+                            assetValue >= filterValueMin &&
+                            assetValue <= filterValueMax
+                        );
+                    }
+                    return false;
+                });
+                return filtered;
+            }
+        };
+
+        const applySort = (assetsToSort: Asset[]) => {
+            if (sort === "") {
+                return assetsToSort;
+            } else {
+                const sorted = [...assetsToSort].sort((a, b) => {
+                    const aValue = a[sort as keyof Asset];
+                    const bValue = b[sort as keyof Asset];
+                    if (
+                        typeof aValue === "number" &&
+                        typeof bValue === "number"
+                    ) {
+                        return ascending ? aValue - bValue : bValue - aValue;
+                    }
+                    return 0;
+                });
+                return sorted;
+            }
+        };
+
+        if (assets) {
+            let filteredAndSortedAssets = assets.assets;
+            filteredAndSortedAssets = applySearch(filteredAndSortedAssets);
+            filteredAndSortedAssets = applyFilter(filteredAndSortedAssets);
+            filteredAndSortedAssets = applySort(filteredAndSortedAssets);
+            setFilteredAssets(filteredAndSortedAssets);
+        }
+    };
+
+    useEffect(() => {
+        handleFilterAndSort();
+    }, [
+        assets,
+        searchValue,
+        filter,
+        sort,
+        ascending,
+        filterValueMin,
+        filterValueMax,
+    ]);
+
     const handleSort = (event: SelectChangeEvent) => {
         setSort(event.target.value);
     };
@@ -93,33 +158,27 @@ export default function ChartRenderer() {
                                 padding: "10px",
                             }}
                         >
-                            <FormControl
-                                sx={{ width: "25ch" }}
+                            <TextField
+                                fullWidth
                                 variant="outlined"
-                                style={{ backgroundColor: "white" }}
-                            >
-                                <InputLabel htmlFor="outlined-adornment-password">
-                                    Search
-                                </InputLabel>
-                                <OutlinedInput
-                                    id="outlined-adornment-password"
-                                    type={"text"}
-                                    endAdornment={
+                                label="Search"
+                                value={searchValue}
+                                onChange={(e) => setSearchValue(e.target.value)}
+                                InputProps={{
+                                    endAdornment: (
                                         <InputAdornment position="end">
                                             <IconButton
                                                 aria-label="search"
                                                 onClick={() => {
-                                                    handleSearch();
+                                                    handleFilterAndSort();
                                                 }}
-                                                edge="end"
                                             >
                                                 <SearchIcon />
                                             </IconButton>
                                         </InputAdornment>
-                                    }
-                                    label="Search"
-                                />
-                            </FormControl>
+                                    ),
+                                }}
+                            />
                         </Paper>
                     </Grid>
                     <Grid item xs={12} md={6}>
@@ -183,7 +242,9 @@ export default function ChartRenderer() {
                                 </Grid>
 
                                 <Grid item xs={1}>
-                                    <IconButton onClick={() => setUp(!up)}>
+                                    <IconButton
+                                        onClick={() => handleFilterAndSort()}
+                                    >
                                         <SearchIcon />
                                     </IconButton>
                                 </Grid>
@@ -222,8 +283,10 @@ export default function ChartRenderer() {
                                     </FormControl>
                                 </Grid>
                                 <Grid item xs={3}>
-                                    <IconButton onClick={() => setUp(!up)}>
-                                        {up ? (
+                                    <IconButton
+                                        onClick={() => setAscending(!ascending)}
+                                    >
+                                        {ascending ? (
                                             <ArrowDownwardIcon />
                                         ) : (
                                             <ArrowUpwardIcon />
@@ -234,10 +297,10 @@ export default function ChartRenderer() {
                         </Paper>
                     </Grid>
 
-                    {assets.assets.length === 0 ? (
+                    {filteredAssets.length === 0 ? (
                         <div>No stocks found...</div>
                     ) : (
-                        assets.assets.map((x) => {
+                        filteredAssets.map((x) => {
                             return (
                                 <Grid item xs={12} md={4}>
                                     <Stock asset={x} />
