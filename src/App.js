@@ -7,13 +7,16 @@ import { Grid } from '@mui/material';
 import ChartLine from './components/home/Chart';
 import Chart2 from './components/home/Chart2';
 import ChartRenderer from './components/home/ChartRenderer';
+import { WebSocketDemo } from './components/home/SocketConnection';
 
 function App() {
 
   return (
     <div className="App">
       <ResponsiveAppBar/>
-        <ChartRenderer/>
+      <WebSocketDemo/>
+
+        {/* <ChartRenderer/> */}
     </div>
   );
 }
