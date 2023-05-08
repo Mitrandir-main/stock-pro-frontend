@@ -110,7 +110,7 @@ export default function AssetRenderer() {
     };
 
     const handleLatestAssets = (data: any) => {
-        console.log();
+        console.log("comming data ", data);
         let assetData: Asset[] = [];
 
         if (data instanceof MessageEvent) {
