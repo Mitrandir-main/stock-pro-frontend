@@ -1,6 +1,5 @@
 import { Grid, Paper } from "@mui/material";
 import React from "react";
-import { FaBeer } from "react-icons/fa";
 import { MdCurrencyBitcoin } from "react-icons/md";
 import "../../App.css";
 
@@ -36,6 +35,10 @@ const Stock = (props: Props) => {
             return false;
         }
     };
+
+    function formatNumber(number: number) {
+        return parseFloat(number.toFixed(5));
+    }
 
     return (
         <Paper
@@ -74,7 +77,7 @@ const Stock = (props: Props) => {
                                         : "stock-text-red"
                                 }
                             >
-                                {props.asset.change1s + "%"}
+                                {formatNumber(props.asset.change1s) + "%"}
                             </span>{" "}
                         </p>
                         <p>
@@ -88,7 +91,7 @@ const Stock = (props: Props) => {
                                         : "stock-text-red"
                                 }
                             >
-                                {props.asset.change1m + "%"}
+                                {formatNumber(props.asset.change1m) + "%"}
                             </span>{" "}
                         </p>
                         <p>
@@ -102,7 +105,7 @@ const Stock = (props: Props) => {
                                         : "stock-text-red"
                                 }
                             >
-                                {props.asset.change30m + "%"}
+                                {formatNumber(props.asset.change30m) + "%"}
                             </span>{" "}
                         </p>
                         <p>
@@ -116,7 +119,7 @@ const Stock = (props: Props) => {
                                         : "stock-text-red"
                                 }
                             >
-                                {props.asset.change1h + "%"}
+                                {formatNumber(props.asset.change1h) + "%"}
                             </span>{" "}
                         </p>
                         <p>
@@ -130,7 +133,7 @@ const Stock = (props: Props) => {
                                         : "stock-text-red"
                                 }
                             >
-                                {props.asset.change12h + "%"}
+                                {formatNumber(props.asset.change12h) + "%"}
                             </span>{" "}
                         </p>
                         <p>
@@ -144,7 +147,7 @@ const Stock = (props: Props) => {
                                         : "stock-text-red"
                                 }
                             >
-                                {props.asset.change1d + "%"}
+                                {formatNumber(props.asset.change1d) + "%"}
                             </span>{" "}
                         </p>
                     </div>

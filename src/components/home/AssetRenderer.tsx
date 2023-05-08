@@ -11,9 +11,12 @@ import MenuItem from "@mui/material/MenuItem";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
+import SocketConnection from "./SocketConnection";
 
-export default function ChartRenderer() {
-    const [assets, setAssets] = useState<AssetData | undefined>(undefined);
+export default function AssetRenderer() {
+    // const [assets, setAssets] = useState<AssetData | undefined>(undefined);
+    const [assetsLatest, setAssetsLatest] = useState<Asset[]>([]);
+
     const [searchValue, setSearchValue] = useState<string>("");
     const [sort, setSort] = React.useState("");
     const [filter, setFilter] = React.useState("");
@@ -23,43 +26,13 @@ export default function ChartRenderer() {
 
     const [ascending, setAscending] = React.useState(true);
 
-    function processJsons(data: any) {
-        const jsonStrings = data.trim().split("\n");
-        const combinedAssets: any = [];
-
-        jsonStrings.forEach((jsonString: any) => {
-            const object = JSON.parse(jsonString);
-            combinedAssets.push(...object.assets);
-        });
-
-        const distinctAssets: any = [];
-
-        combinedAssets.forEach((asset: Asset) => {
-            if (
-                !distinctAssets.some(
-                    (existingAsset: Asset) => existingAsset.name === asset.name
-                )
-            ) {
-                distinctAssets.push(asset);
-            }
-        });
-
-        const combinedObject = {
-            assets: distinctAssets,
-        };
-
-        const combinedJsonString: AssetData = combinedObject;
-
-        return combinedJsonString;
-    }
-
     const stockParameters = [
-        "change1s",
-        "change1m",
-        "change30m",
-        "change1h",
-        "change12h",
-        "change1d",
+        { value: "change1s", text: "1s Change" },
+        { value: "change1m", text: "1m Change" },
+        { value: "change30m", text: "30m Change" },
+        { value: "change1h", text: "1h Change" },
+        { value: "change12h", text: "12h Change" },
+        { value: "change1d", text: "1d Change" },
     ];
 
     const handleFilterAndSort = () => {
@@ -108,8 +81,8 @@ export default function ChartRenderer() {
             }
         };
 
-        if (assets) {
-            let filteredAndSortedAssets = assets.assets;
+        if (assetsLatest.length > 0) {
+            let filteredAndSortedAssets = assetsLatest;
             filteredAndSortedAssets = applySearch(filteredAndSortedAssets);
             filteredAndSortedAssets = applyFilter(filteredAndSortedAssets);
             filteredAndSortedAssets = applySort(filteredAndSortedAssets);
@@ -120,7 +93,7 @@ export default function ChartRenderer() {
     useEffect(() => {
         handleFilterAndSort();
     }, [
-        assets,
+        assetsLatest,
         searchValue,
         filter,
         sort,
@@ -136,19 +109,107 @@ export default function ChartRenderer() {
         setFilter(event.target.value);
     };
 
-    useEffect(() => {
-        fetch("/dumy.json")
-            .then((response) => response.text())
-            .then((data) => {
-                const combinedAssets = processJsons(data);
-                setAssets(combinedAssets);
-            })
-            .catch((error) => console.error("Error fetching JSON:", error));
-    }, []);
+    const handleLatestAssets = (data: any) => {
+        console.log("comming data ", data);
+        let assetData: Asset[] = [];
 
+        if (data instanceof MessageEvent) {
+            const parsedData = JSON.parse(data.data);
+            assetData = Array.isArray(parsedData) ? parsedData : [parsedData];
+        }
+
+        if (Array.isArray(assetData)) {
+            console.log(assetData);
+            let newAsset = [...assetsLatest]; // Create a shallow copy of the assetsLatest array
+
+            assetData.map((asset) => {
+                if (asset && asset.name !== null) {
+                    let matchedAsset = newAsset.find(
+                        (x) =>
+                            x.name.toLocaleLowerCase() ===
+                            asset.name.toLocaleLowerCase()
+                    );
+
+                    if (matchedAsset) {
+                        matchedAsset.price =
+                            asset.price !== null && asset.price
+                                ? asset.price
+                                : matchedAsset.price;
+
+                        matchedAsset.change30m =
+                            asset.change30m !== null && asset.change30m
+                                ? asset.change30m
+                                : matchedAsset.change30m;
+
+                        matchedAsset.change1s =
+                            asset.change1s !== null && asset.change1s
+                                ? asset.change1s
+                                : matchedAsset.change1s;
+
+                        matchedAsset.change1m =
+                            asset.change1m !== null && asset.change1m
+                                ? asset.change1m
+                                : matchedAsset.change1m;
+
+                        matchedAsset.change1h =
+                            asset.change1h !== null && asset.change1h
+                                ? asset.change1h
+                                : matchedAsset.change1h;
+
+                        matchedAsset.change1d =
+                            asset.change1d !== null && asset.change1d
+                                ? asset.change1d
+                                : matchedAsset.change1d;
+
+                        matchedAsset.change12h =
+                            asset.change12h !== null && asset.change12h
+                                ? asset.change12h
+                                : matchedAsset.change12h;
+                    } else {
+                        console.log("add ", asset);
+                        if (asset.name !== null && asset.price !== null) {
+                            asset.change30m =
+                                asset.change30m !== null ? asset.change30m : 0;
+
+                            asset.change1s =
+                                asset.change1s !== null ? asset.change1s : 0;
+
+                            asset.change1m =
+                                asset.change1m !== null ? asset.change1m : 0;
+
+                            asset.change1h =
+                                asset.change1h !== null ? asset.change1h : 0;
+
+                            asset.change1d =
+                                asset.change1d !== null ? asset.change1d : 0;
+
+                            asset.change12h =
+                                asset.change12h !== null ? asset.change12h : 0;
+
+                            newAsset = newAsset.concat(asset);
+                        }
+                    }
+                }
+            });
+            setAssetsLatest(newAsset);
+        }
+    };
     return (
         <div style={{ marginTop: "50px", width: "90%", margin: "0 auto" }}>
-            {assets !== undefined ? (
+            <SocketConnection handleLatestAssets={handleLatestAssets} />
+
+            {/* <div style={{ minHeight: "300px", backgroundColor: "white" }}>
+                <h1>blah</h1>
+                {Array.isArray(assetsLatest) &&
+                    assetsLatest.map((x, index) => {
+                        return (
+                            <div key={index}>
+                                <Stock asset={x} />
+                            </div>
+                        );
+                    })}
+            </div> */}
+            {assetsLatest !== undefined ? (
                 <Grid container spacing={4} justifyContent="center">
                     <Grid item xs={12} md={3}>
                         <Paper
@@ -204,8 +265,8 @@ export default function ChartRenderer() {
                                         >
                                             {stockParameters.map((x) => {
                                                 return (
-                                                    <MenuItem value={x}>
-                                                        {x}
+                                                    <MenuItem value={x.value}>
+                                                        {x.text}
                                                     </MenuItem>
                                                 );
                                             })}
@@ -274,8 +335,8 @@ export default function ChartRenderer() {
                                         >
                                             {stockParameters.map((x) => {
                                                 return (
-                                                    <MenuItem value={x}>
-                                                        {x}
+                                                    <MenuItem value={x.value}>
+                                                        {x.text}
                                                     </MenuItem>
                                                 );
                                             })}
