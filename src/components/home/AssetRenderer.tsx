@@ -27,12 +27,12 @@ export default function AssetRenderer() {
     const [ascending, setAscending] = React.useState(true);
 
     const stockParameters = [
-        "change1s",
-        "change1m",
-        "change30m",
-        "change1h",
-        "change12h",
-        "change1d",
+        { value: "change1s", text: "1s Change" },
+        { value: "change1m", text: "1m Change" },
+        { value: "change30m", text: "30m Change" },
+        { value: "change1h", text: "1h Change" },
+        { value: "change12h", text: "12h Change" },
+        { value: "change1d", text: "1d Change" },
     ];
 
     const handleFilterAndSort = () => {
@@ -265,8 +265,8 @@ export default function AssetRenderer() {
                                         >
                                             {stockParameters.map((x) => {
                                                 return (
-                                                    <MenuItem value={x}>
-                                                        {x}
+                                                    <MenuItem value={x.value}>
+                                                        {x.text}
                                                     </MenuItem>
                                                 );
                                             })}
@@ -335,8 +335,8 @@ export default function AssetRenderer() {
                                         >
                                             {stockParameters.map((x) => {
                                                 return (
-                                                    <MenuItem value={x}>
-                                                        {x}
+                                                    <MenuItem value={x.value}>
+                                                        {x.text}
                                                     </MenuItem>
                                                 );
                                             })}
