@@ -14,7 +14,7 @@ import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 import SocketConnection from "./SocketConnection";
 
 export default function AssetRenderer() {
-    const [assets, setAssets] = useState<AssetData | undefined>(undefined);
+    // const [assets, setAssets] = useState<AssetData | undefined>(undefined);
     const [assetsLatest, setAssetsLatest] = useState<Asset[]>([]);
 
     const [searchValue, setSearchValue] = useState<string>("");
@@ -25,36 +25,6 @@ export default function AssetRenderer() {
     const [filteredAssets, setFilteredAssets] = useState<Asset[]>([]);
 
     const [ascending, setAscending] = React.useState(true);
-
-    function processJsons(data: any) {
-        const jsonStrings = data.trim().split("\n");
-        const combinedAssets: any = [];
-
-        jsonStrings.forEach((jsonString: any) => {
-            const object = JSON.parse(jsonString);
-            combinedAssets.push(...object.assets);
-        });
-
-        const distinctAssets: any = [];
-
-        combinedAssets.forEach((asset: Asset) => {
-            if (
-                !distinctAssets.some(
-                    (existingAsset: Asset) => existingAsset.name === asset.name
-                )
-            ) {
-                distinctAssets.push(asset);
-            }
-        });
-
-        const combinedObject = {
-            assets: distinctAssets,
-        };
-
-        const combinedJsonString: AssetData = combinedObject;
-
-        return combinedJsonString;
-    }
 
     const stockParameters = [
         "change1s",
@@ -111,8 +81,8 @@ export default function AssetRenderer() {
             }
         };
 
-        if (assets) {
-            let filteredAndSortedAssets = assets.assets;
+        if (assetsLatest.length > 0) {
+            let filteredAndSortedAssets = assetsLatest;
             filteredAndSortedAssets = applySearch(filteredAndSortedAssets);
             filteredAndSortedAssets = applyFilter(filteredAndSortedAssets);
             filteredAndSortedAssets = applySort(filteredAndSortedAssets);
@@ -123,7 +93,7 @@ export default function AssetRenderer() {
     useEffect(() => {
         handleFilterAndSort();
     }, [
-        assets,
+        assetsLatest,
         searchValue,
         filter,
         sort,
@@ -138,16 +108,6 @@ export default function AssetRenderer() {
     const handleFilter = (event: SelectChangeEvent) => {
         setFilter(event.target.value);
     };
-
-    useEffect(() => {
-        fetch("/dumy.json")
-            .then((response) => response.text())
-            .then((data) => {
-                const combinedAssets = processJsons(data);
-                setAssets(combinedAssets);
-            })
-            .catch((error) => console.error("Error fetching JSON:", error));
-    }, []);
 
     const handleLatestAssets = (data: any) => {
         console.log();
@@ -236,8 +196,9 @@ export default function AssetRenderer() {
     };
     return (
         <div style={{ marginTop: "50px", width: "90%", margin: "0 auto" }}>
-            <div style={{ minHeight: "300px", backgroundColor: "white" }}>
-                <SocketConnection handleLatestAssets={handleLatestAssets} />
+            <SocketConnection handleLatestAssets={handleLatestAssets} />
+
+            {/* <div style={{ minHeight: "300px", backgroundColor: "white" }}>
                 <h1>blah</h1>
                 {Array.isArray(assetsLatest) &&
                     assetsLatest.map((x, index) => {
@@ -247,8 +208,8 @@ export default function AssetRenderer() {
                             </div>
                         );
                     })}
-            </div>
-            {assets !== undefined ? (
+            </div> */}
+            {assetsLatest !== undefined ? (
                 <Grid container spacing={4} justifyContent="center">
                     <Grid item xs={12} md={3}>
                         <Paper
@@ -397,7 +358,7 @@ export default function AssetRenderer() {
                         </Paper>
                     </Grid>
 
-                    {/* {filteredAssets.length === 0 ? (
+                    {filteredAssets.length === 0 ? (
                         <div>No stocks found...</div>
                     ) : (
                         filteredAssets.map((x) => {
@@ -407,7 +368,7 @@ export default function AssetRenderer() {
                                 </Grid>
                             );
                         })
-                    )} */}
+                    )}
                 </Grid>
             ) : (
                 <div>
