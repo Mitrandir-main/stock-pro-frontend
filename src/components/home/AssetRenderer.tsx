@@ -11,9 +11,12 @@ import MenuItem from "@mui/material/MenuItem";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
 import ArrowDownwardIcon from "@mui/icons-material/ArrowDownward";
 import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
+import SocketConnection from "./SocketConnection";
 
-export default function ChartRenderer() {
+export default function AssetRenderer() {
     const [assets, setAssets] = useState<AssetData | undefined>(undefined);
+    const [assetsLatest, setAssetsLatest] = useState<Asset[]>([]);
+
     const [searchValue, setSearchValue] = useState<string>("");
     const [sort, setSort] = React.useState("");
     const [filter, setFilter] = React.useState("");
@@ -146,8 +149,105 @@ export default function ChartRenderer() {
             .catch((error) => console.error("Error fetching JSON:", error));
     }, []);
 
+    const handleLatestAssets = (data: any) => {
+        console.log();
+        let assetData: Asset[] = [];
+
+        if (data instanceof MessageEvent) {
+            const parsedData = JSON.parse(data.data);
+            assetData = Array.isArray(parsedData) ? parsedData : [parsedData];
+        }
+
+        if (Array.isArray(assetData)) {
+            console.log(assetData);
+            let newAsset = [...assetsLatest]; // Create a shallow copy of the assetsLatest array
+
+            assetData.map((asset) => {
+                if (asset && asset.name !== null) {
+                    let matchedAsset = newAsset.find(
+                        (x) =>
+                            x.name.toLocaleLowerCase() ===
+                            asset.name.toLocaleLowerCase()
+                    );
+
+                    if (matchedAsset) {
+                        matchedAsset.price =
+                            asset.price !== null && asset.price
+                                ? asset.price
+                                : matchedAsset.price;
+
+                        matchedAsset.change30m =
+                            asset.change30m !== null && asset.change30m
+                                ? asset.change30m
+                                : matchedAsset.change30m;
+
+                        matchedAsset.change1s =
+                            asset.change1s !== null && asset.change1s
+                                ? asset.change1s
+                                : matchedAsset.change1s;
+
+                        matchedAsset.change1m =
+                            asset.change1m !== null && asset.change1m
+                                ? asset.change1m
+                                : matchedAsset.change1m;
+
+                        matchedAsset.change1h =
+                            asset.change1h !== null && asset.change1h
+                                ? asset.change1h
+                                : matchedAsset.change1h;
+
+                        matchedAsset.change1d =
+                            asset.change1d !== null && asset.change1d
+                                ? asset.change1d
+                                : matchedAsset.change1d;
+
+                        matchedAsset.change12h =
+                            asset.change12h !== null && asset.change12h
+                                ? asset.change12h
+                                : matchedAsset.change12h;
+                    } else {
+                        console.log("add ", asset);
+                        if (asset.name !== null && asset.price !== null) {
+                            asset.change30m =
+                                asset.change30m !== null ? asset.change30m : 0;
+
+                            asset.change1s =
+                                asset.change1s !== null ? asset.change1s : 0;
+
+                            asset.change1m =
+                                asset.change1m !== null ? asset.change1m : 0;
+
+                            asset.change1h =
+                                asset.change1h !== null ? asset.change1h : 0;
+
+                            asset.change1d =
+                                asset.change1d !== null ? asset.change1d : 0;
+
+                            asset.change12h =
+                                asset.change12h !== null ? asset.change12h : 0;
+
+                            newAsset = newAsset.concat(asset);
+                        }
+                    }
+                }
+            });
+            setAssetsLatest(newAsset);
+        }
+    };
     return (
         <div style={{ marginTop: "50px", width: "90%", margin: "0 auto" }}>
+            <div style={{ minHeight: "300px", backgroundColor: "white" }}>
+                <SocketConnection handleLatestAssets={handleLatestAssets} />
+                <h1>blah</h1>
+                {Array.isArray(assetsLatest) &&
+                    assetsLatest.map((x, index) => {
+                        return (
+                            <div key={index}>
+                                <Stock asset={x} />
+                            </div>
+                        );
+                    })}
+            </div>
             {assets !== undefined ? (
                 <Grid container spacing={4} justifyContent="center">
                     <Grid item xs={12} md={3}>
@@ -297,7 +397,7 @@ export default function ChartRenderer() {
                         </Paper>
                     </Grid>
 
-                    {filteredAssets.length === 0 ? (
+                    {/* {filteredAssets.length === 0 ? (
                         <div>No stocks found...</div>
                     ) : (
                         filteredAssets.map((x) => {
@@ -307,7 +407,7 @@ export default function ChartRenderer() {
                                 </Grid>
                             );
                         })
-                    )}
+                    )} */}
                 </Grid>
             ) : (
                 <div>

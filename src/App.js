@@ -1,15 +1,13 @@
 import './App.css';
 import ResponsiveAppBar from './components/navigation/ResponsiveAppBar';
-import { WebSocketDemo } from './components/home/SocketConnection';
+import AssetRenderer from './components/home/AssetRenderer'
 
 function App() {
 
   return (
     <div className="App">
       <ResponsiveAppBar/>
-      <WebSocketDemo/>
-
-        {/* <ChartRenderer/> */}
+      <AssetRenderer/>
     </div>
   );
 }

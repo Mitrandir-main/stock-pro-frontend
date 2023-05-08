@@ -1,6 +1,5 @@
 import { Grid, Paper } from "@mui/material";
 import React from "react";
-import { FaBeer } from "react-icons/fa";
 import { MdCurrencyBitcoin } from "react-icons/md";
 import "../../App.css";
 
