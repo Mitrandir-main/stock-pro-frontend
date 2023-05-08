@@ -14,15 +14,14 @@ import ArrowUpwardIcon from "@mui/icons-material/ArrowUpward";
 import SocketConnection from "./SocketConnection";
 
 export default function AssetRenderer() {
-    // const [assets, setAssets] = useState<AssetData | undefined>(undefined);
     const [assetsLatest, setAssetsLatest] = useState<Asset[]>([]);
+    const [filteredAssets, setFilteredAssets] = useState<Asset[]>([]);
 
     const [searchValue, setSearchValue] = useState<string>("");
     const [sort, setSort] = React.useState("");
     const [filter, setFilter] = React.useState("");
     const [filterValueMin, setFilterValueMin] = React.useState(0);
     const [filterValueMax, setFilterValueMax] = React.useState(0);
-    const [filteredAssets, setFilteredAssets] = useState<Asset[]>([]);
 
     const [ascending, setAscending] = React.useState(true);
 
@@ -120,7 +119,7 @@ export default function AssetRenderer() {
 
         if (Array.isArray(assetData)) {
             console.log(assetData);
-            let newAsset = [...assetsLatest]; // Create a shallow copy of the assetsLatest array
+            let newAsset = [...assetsLatest];
 
             assetData.map((asset) => {
                 if (asset && asset.name !== null) {
