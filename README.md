@@ -1,13 +1,19 @@
 ## Welcome to the Frontend of our COM3014 project
 
-Make sure you are in the root directory and then you can run:
+Make sure you have Node.js installed and that you are inside the root directory of the project.
 
-### `npm install`
+## Installation
 
-### `npm start`
+Open new terminal inside the project and then type:
 
-Runs the app in the development mode.\
+```bash
+npm install`
+```
+
+## Usage
+
+```bash
+npm start`
+```
+
 Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
-
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
