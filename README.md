@@ -7,13 +7,13 @@ Make sure you have Node.js installed and that you are inside the root directory 
 Open new terminal inside the project and then type:
 
 ```bash
-npm install`
+npm install
 ```
 
 ## Usage
 
 ```bash
-npm start`
+npm start
 ```
 
 Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
